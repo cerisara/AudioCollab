@@ -55,10 +55,14 @@ public class Mike extends InputStream {
 				record.startRecording();
 				try {
 					String PATH_NAME = Dlaudio.main.fdir.getAbsolutePath()+"/recwav.raw";
+                    // TODO: do not save right now in a WAV file, but rather push this in a RAM buffer
+                    // a consumer can then record in a file if required
+                    /*
 					FileChannel fout = new FileOutputStream(PATH_NAME).getChannel();
 					ByteBuffer myByteBuffer = ByteBuffer.allocate(wav.length*2);
 					myByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 					ShortBuffer myShortBuffer = myByteBuffer.asShortBuffer();
+                    */
 					long shortsRead = 0;
 					while (contrec) {
 						int nbshorts = record.read(wav,0,wav.length);
@@ -66,15 +70,18 @@ public class Mike extends InputStream {
 							Dlaudio.msg("Mike error: sample too short");
 						} else {
 							shortsRead += nbshorts;
+                            Dlaudio.main.pushSample(wav);
+                            /*
 							myByteBuffer.clear();
 							myShortBuffer.clear();
 							myShortBuffer.put(wav,0,nbshorts);
 							fout.write(myByteBuffer);
+                            */
 						}
 					}
 					record.stop();
 					record.release();
-					fout.close();
+					// fout.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

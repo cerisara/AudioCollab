@@ -15,7 +15,6 @@ public final class R {
     }
     public static final class id {
         public static final int but1=0x7f040001;
-        public static final int graph_view=0x7f040002;
         public static final int textview=0x7f040000;
     }
     public static final class layout {

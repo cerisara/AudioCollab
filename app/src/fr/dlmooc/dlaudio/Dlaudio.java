@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Random;
 import java.io.DataInputStream;
 import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.softmoore.android.graphlib.Function;
 import com.softmoore.android.graphlib.Graph;
@@ -43,6 +44,7 @@ public class Dlaudio extends Activity {
 
     private Graph graph;
     private ArrayList<Point> pts = new ArrayList<Point>();
+    private LinkedBlockingQueue<Short> sample = new LinkedBlockingQueue<>(160000);
 
     /** Called when the activity is first created. */
     @Override
@@ -57,6 +59,16 @@ public class Dlaudio extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    public void pushSample(short[] wav) {
+        try {
+            for (int i=0;i<wav.length;i++) {
+                sample.put(new Short(wav[i]));
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void msg(final String s) {
         main.runOnUiThread(new Runnable() {
             public void run() {
@@ -65,6 +77,7 @@ public class Dlaudio extends Activity {
         });
     }
 
+    /** called when the user press the button "start" */
     public void start(View v) {
         pts.clear();
         final Button but = (Button) findViewById(R.id.but1);
@@ -84,6 +97,7 @@ public class Dlaudio extends Activity {
         mike.startRecord();
     }
 
+    /** called by the mike when it has finished recording a sample */
     public void mikeEnded() {
         msg("training...");
         trainModel();
@@ -187,12 +201,14 @@ public class Dlaudio extends Activity {
                         if (vmin>pts2[i].getY()) vmin=(float)pts2[i].getY();
                         if (vmax<pts2[i].getY()) vmax=(float)pts2[i].getY();
                     }
+                    /*
                     graph = new Graph.Builder()
                         .setWorldCoordinates(0, NEPOCHS, vmin, vmax)
                         .addLineGraph(pts2)
                         .build();
                     GraphView graphView = (GraphView)findViewById(R.id.graph_view);
                     graphView.setGraph(graph);
+                    */
                 }
             });
 
